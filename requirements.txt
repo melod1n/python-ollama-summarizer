@@ -5,7 +5,7 @@ readability-lxml~=0.8.4.1
 tiktoken~=0.9.0
 pydantic~=2.11.4
 python-dotenv~=1.1.0
-SQLAlchemy~=2.0.41
+SQLAlchemy~=2.0.43
 uvicorn[standard]
 aiosqlite
 greenlet
