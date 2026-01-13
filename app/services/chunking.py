@@ -12,11 +12,11 @@ def _get_encoding(name: str = "cl100k_base"):
 
 
 def chunk_text(
-    text: str,
-    max_tokens: int,
-    overlap: int = 0,
-    *,
-    encoding_name: str = "cl100k_base",
+        text: str,
+        max_tokens: int,
+        overlap: int = 0,
+        *,
+        encoding_name: str = "cl100k_base",
 ) -> List[str]:
     if max_tokens <= 0:
         raise ValueError("max_tokens must be > 0")

@@ -1,6 +1,5 @@
 import threading
 from typing import Dict, List
-
 import tiktoken
 
 encoding = tiktoken.get_encoding("cl100k_base")

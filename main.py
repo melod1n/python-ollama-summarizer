@@ -6,6 +6,7 @@ from app.core.config import OLLAMA_API_URL, MODEL_NAME, MAX_TOKENS, MAX_QUEUE_SI
 from app.core.log import log
 from app.db.database import engine, dispose_engine
 from app.db.models import Base
+from app.api.summarize import router as summarize_router
 
 
 @asynccontextmanager
@@ -30,7 +31,4 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
-from app.api.summarize import router as summarize_router
-
 app.include_router(summarize_router)
