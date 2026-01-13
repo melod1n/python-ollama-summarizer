@@ -1,11 +1,17 @@
-from pydantic import BaseModel
+from typing import Any, Literal
+
+from pydantic import BaseModel, HttpUrl, ConfigDict
 
 
 class URLRequest(BaseModel):
-    url: str
+    model_config = ConfigDict(extra="forbid")
+
+    url: HttpUrl
 
 
 class StatusResponse(BaseModel):
-    status: str
-    result: dict | None = None
+    model_config = ConfigDict(extra="forbid")
+
+    status: Literal["in_progress", "success", "failure"]
+    result: dict[str, Any] | None = None
     error: str | None = None

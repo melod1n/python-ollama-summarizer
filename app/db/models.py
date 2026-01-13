@@ -1,18 +1,29 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Float
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.sql import func
+from sqlalchemy import String, Text, DateTime, Float, Integer, func
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    pass
 
 
 class Summary(Base):
     __tablename__ = "summaries"
 
-    id = Column(Integer, primary_key=True, index=True)
-    url = Column(String, unique=True, index=True, nullable=False)
-    status = Column(String, index=True)  # in_progress / success / failure
-    result = Column(Text, nullable=True)
-    error = Column(Text, nullable=True)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    duration_sec = Column(Float, nullable=True)
-    total_tokens = Column(Integer, nullable=True)
+    id: Mapped[int] = mapped_column(primary_key=True)
+
+    url: Mapped[str] = mapped_column(String(2048), unique=True, index=True, nullable=False)
+
+    # keep string status, but make it explicit and not-null
+    status: Mapped[str] = mapped_column(String(32), index=True, nullable=False, default="in_progress")
+
+    result: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    created_at: Mapped["DateTime"] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    duration_sec: Mapped[float | None] = mapped_column(Float, nullable=True)
+    total_tokens: Mapped[int | None] = mapped_column(Integer, nullable=True)
