@@ -44,7 +44,10 @@ async def queue_summary_task(request: URLRequest, session: AsyncSession = Depend
         task_queue.append(request_id)
         task_status[request_id] = {
             "status": "in_progress",
-            "request": {"url": url},
+            "request": {
+                "url": url,
+                "model": model,
+            },
         }
 
     if not existing:
