@@ -30,8 +30,8 @@ def _extract_json_block(text: str) -> str:
     return (m.group(1) if m else s).strip()
 
 
-def call_ollama(prompt: str) -> str:
-    payload = {"model": MODEL_NAME, "prompt": prompt, "stream": False}
+def call_ollama(prompt: str, model: str | None) -> str:
+    payload = {"model": model or MODEL_NAME, "prompt": prompt, "stream": False}
 
     try:
         resp = _SESSION.post(OLLAMA_API_URL, json=payload, timeout=_DEFAULT_TIMEOUT)

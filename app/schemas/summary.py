@@ -6,6 +6,7 @@ class URLRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     url: HttpUrl
+    model: str | None = None
 
 
 class StatusResponse(BaseModel):

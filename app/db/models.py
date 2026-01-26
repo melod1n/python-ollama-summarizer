@@ -1,6 +1,8 @@
 from sqlalchemy import String, Text, DateTime, Float, Integer, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
+from app.core.config import MODEL_NAME
+
 
 class Base(DeclarativeBase):
     pass
@@ -13,8 +15,9 @@ class Summary(Base):
 
     url: Mapped[str] = mapped_column(String(2048), unique=True, index=True, nullable=False)
 
-    # keep string status, but make it explicit and not-null
     status: Mapped[str] = mapped_column(String(32), index=True, nullable=False, default="in_progress")
+
+    model: Mapped[str] = mapped_column(String(2048), index=False, nullable=False, default=MODEL_NAME)
 
     result: Mapped[str | None] = mapped_column(Text, nullable=True)
     error: Mapped[str | None] = mapped_column(Text, nullable=True)

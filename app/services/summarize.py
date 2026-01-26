@@ -22,8 +22,10 @@ from app.services.ollama import call_ollama, build_prompt, filter_tags_via_llm
 # worker / queue
 # -------------------------
 def process_queue_item(request_id: str) -> None:
-    url = task_status[request_id]["request"]["url"]
-    asyncio.run(_process_and_save(url, request_id))
+    request = task_status[request_id]["request"]
+    url = request["url"]
+    model = request["model"]
+    asyncio.run(_process_and_save(url=url, model=model, request_id=request_id))
 
 
 # -------------------------
@@ -149,7 +151,7 @@ def summarize_chunk_summaries(summaries: list[str]) -> str:
 # -------------------------
 # db write
 # -------------------------
-async def _process_and_save(url: str, request_id: str) -> None:
+async def _process_and_save(url: str, model: str | None, request_id: str) -> None:
     # adjust this import name to match your database.py
     from app.db.database import SessionLocal  # if you used my updated database.py
     # if you still have async_session = sessionmaker(...), then use that instead.
@@ -178,10 +180,11 @@ async def _process_and_save(url: str, request_id: str) -> None:
                     chunk_prompt_tokens = len(encoding.encode(chunk_prompt, disallowed_special=()))
                     total_tokens_used += chunk_prompt_tokens
 
-                    log.info(f"🧩 Chunk #{idx + 1}/{len(chunks)}: chars={len(chunk)}, prompt_tokens={chunk_prompt_tokens}")
+                    log.info(
+                        f"🧩 Chunk #{idx + 1}/{len(chunks)}: chars={len(chunk)}, prompt_tokens={chunk_prompt_tokens}")
 
                     chunk_start_time = time()
-                    chunk_result = call_ollama(chunk_prompt)
+                    chunk_result = call_ollama(prompt=chunk_prompt, model=model)
                     log.info(f"📨 LLM response for chunk #{idx + 1} (took {round(time() - chunk_start_time, 2)}s)")
 
                     parsed = try_parse_result(chunk_result)
@@ -201,7 +204,7 @@ async def _process_and_save(url: str, request_id: str) -> None:
                 }
             else:
                 total_tokens_used = prompt_tokens
-                result = call_ollama(prompt)
+                result = call_ollama(prompt=prompt, model=model)
                 parsed = try_parse_result(result)
                 final_result = {"url": url, **parsed}
 
@@ -213,7 +216,7 @@ async def _process_and_save(url: str, request_id: str) -> None:
             row = await session.execute(select(Summary).where(Summary.url == url))
             entry = row.scalar_one_or_none()
             if entry is None:
-                entry = Summary(url=url, status="success")
+                entry = Summary(url=url, status="success", model=model)
                 session.add(entry)
 
             entry.status = "success"
@@ -234,7 +237,7 @@ async def _process_and_save(url: str, request_id: str) -> None:
             row = await session.execute(select(Summary).where(Summary.url == url))
             entry = row.scalar_one_or_none()
             if entry is None:
-                entry = Summary(url=url, status="failure")
+                entry = Summary(url=url, status="failure", model=model)
                 session.add(entry)
 
             entry.status = "failure"

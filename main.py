@@ -13,7 +13,8 @@ from app.api.summarize import router as summarize_router
 async def lifespan(app: FastAPI):
     log.info("🟢 Backend started")
     log.info(
-        f"Settings: IN_DOCKER={IN_DOCKER}\n"
+        "Settings:"
+        f"IN_DOCKER={IN_DOCKER}\n"
         f"OLLAMA_API_URL={OLLAMA_API_URL}\n"
         f"MODEL_NAME={MODEL_NAME}\n"
         f"MAX_TOKENS={MAX_TOKENS}\n"

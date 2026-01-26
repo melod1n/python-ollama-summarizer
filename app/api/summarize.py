@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import MAX_QUEUE_SIZE
+from app.core.config import MAX_QUEUE_SIZE, MODEL_NAME
 from app.core.log import log
 from app.core.runtime import queue_lock, task_queue, task_status
 from app.db.database import get_session
@@ -34,6 +34,8 @@ async def queue_summary_task(request: URLRequest, session: AsyncSession = Depend
 
     request_id = str(uuid4())
 
+    model = MODEL_NAME if len(str(request.model).strip()) == 0 else request.model
+
     with queue_lock:
         if len(task_queue) >= MAX_QUEUE_SIZE:
             log.warning(f"🚫 Queue full. Rejected URL: {url}")
@@ -46,7 +48,8 @@ async def queue_summary_task(request: URLRequest, session: AsyncSession = Depend
         }
 
     if not existing:
-        session.add(Summary(url=url, status="in_progress"))
+        session.add(Summary(url=url, status="in_progress", model=model))
+
     else:
         existing.status = "in_progress"
         existing.result = None
